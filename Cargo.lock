@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "ni"
-version = "0.1.0"
+name = "npack"
+version = "0.0.1"
