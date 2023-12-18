@@ -2,13 +2,14 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use crate::agents::Agents;
+use crate::agents::Agent;
+use crate::detect::detect;
 
 pub struct DetectOptions {
     pub cwd: Option<String>,
 }
 
-pub type Runner = fn(agent: Agents) -> String;
+pub type Runner = fn(agent: Agent, args: Vec<String>) -> String;
 
 pub fn run_cli(func: Runner) {
     let args = env::args().collect::<Vec<String>>()[1..]
@@ -26,7 +27,7 @@ pub fn run(func: Runner, args: Vec<String>) {
     let cwd = env::current_dir().unwrap();
     let mut config_cwd = PathBuf::new();
     println!("cwd is {:?}", cwd);
-    if args[0] == "-C" {
+    if args.len() > 2 && args[0] == "-C" {
         let path = Path::new(args[1].as_str());
         config_cwd = if path.is_absolute() {
             path.to_path_buf()
@@ -37,8 +38,9 @@ pub fn run(func: Runner, args: Vec<String>) {
     }
     println!("args is {:?}", args);
     println!("config_cwd is {:?}", config_cwd);
-    let command = func(Agents::Npm);
-    let output = Command::new(command)
+
+    let command = func(Agent::Npm, args.clone());
+    let output = Command::new(command.clone())
         .arg("install")
         .output()
         .expect("Failed to execute command");
@@ -47,6 +49,10 @@ pub fn run(func: Runner, args: Vec<String>) {
         println!("Command executed successfully:\n{}", stdout);
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        println!("Command failed:\n{}", stderr);
+        println!("{}, Command failed:\n{}", command, stderr);
     }
+}
+
+fn get_cli_command(func: Runner, args: Vec<String>) {
+    let global = "-g".to_string();
 }
