@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "packageManager": "pnpm@8.11.0",
   "devDependencies": {
-    "@antfu/ni": "^0.21.12"
+    "dayjs": "^1.11.10",
+    "vue": "^3.3.13"
   }
 }

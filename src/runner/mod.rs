@@ -1,6 +1,7 @@
 use std::env;
+use std::io::Stdout;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use crate::agents::Agent;
 use crate::detect::detect;
@@ -9,7 +10,7 @@ pub struct DetectOptions {
     pub cwd: Option<String>,
 }
 
-pub type Runner = fn(agent: Agent, args: Vec<String>) -> String;
+pub type Runner = fn(agent: Agent, args: Vec<String>) -> (String, Vec<String>);
 
 pub fn run_cli(func: Runner) {
     let args = env::args().collect::<Vec<String>>()[1..]
@@ -39,20 +40,18 @@ pub fn run(func: Runner, args: Vec<String>) {
     println!("args is {:?}", args);
     println!("config_cwd is {:?}", config_cwd);
 
-    let command = func(Agent::Npm, args.clone());
-    let output = Command::new(command.clone())
-        .arg("install")
-        .output()
+    let (agent, args) = get_cli_command(func, args.clone());
+
+    Command::new(&agent)
+        .args(args)
+        .spawn()
         .expect("Failed to execute command");
-    if output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        println!("Command executed successfully:\n{}", stdout);
-    } else {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        println!("{}, Command failed:\n{}", command, stderr);
-    }
 }
 
-fn get_cli_command(func: Runner, args: Vec<String>) {
+fn get_cli_command(func: Runner, args: Vec<String>) -> (String, Vec<String>) {
     let global = "-g".to_string();
+    if args.contains(&global) {
+        return func(Agent::Npm, args);
+    }
+    func(Agent::Npm, args)
 }
