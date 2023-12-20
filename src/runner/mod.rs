@@ -1,5 +1,5 @@
 use std::env;
-use std::io::Stdout;
+use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -42,16 +42,31 @@ pub fn run(func: Runner, args: Vec<String>) {
 
     let (agent, args) = get_cli_command(func, args.clone());
 
-    Command::new(&agent)
+    let mut command = Command::new(&agent)
         .args(args)
+        .stdout(Stdio::piped())
         .spawn()
         .expect("Failed to execute command");
+
+    if let Some(stdout) = command.stdout.take() {
+        let reader = BufReader::new(stdout);
+        for line in reader.lines() {
+            if let Ok(line) = line {
+                println!("{}", line);
+            }
+        }
+    }
+
+    let status = command.wait().expect("Failed to wait for command");
+    if !status.success() {
+        println!("Command execution failed");
+    }
 }
 
 fn get_cli_command(func: Runner, args: Vec<String>) -> (String, Vec<String>) {
     let global = "-g".to_string();
     if args.contains(&global) {
-        return func(Agent::Npm, args);
+        return func(Agent::Pnpm, args);
     }
-    func(Agent::Npm, args)
+    func(Agent::Pnpm, args)
 }
