@@ -1,7 +1,8 @@
+use cargo_metadata::{Metadata, MetadataCommand};
 use std::env;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::{self, Command, Stdio};
 
 use crate::agents::Agent;
 use crate::detect::detect;
@@ -23,24 +24,32 @@ pub fn run_cli(func: Runner) {
 }
 
 pub fn run(func: Runner, args: Vec<String>) {
+    let metadata: Metadata = MetadataCommand::new().no_deps().exec().unwrap();
+    let package = metadata.packages.first().unwrap();
+
     let mut args = args;
-    println!("before args is {:?}", args);
-    let cwd = env::current_dir().unwrap();
-    let mut config_cwd = PathBuf::new();
-    println!("cwd is {:?}", cwd);
+    let mut cwd = env::current_dir().unwrap();
     if args.len() > 2 && args[0] == "-C" {
         let path = Path::new(args[1].as_str());
-        config_cwd = if path.is_absolute() {
+        cwd = if path.is_absolute() {
             path.to_path_buf()
         } else {
             cwd.join(path)
         };
         args = args[0..2].to_vec();
     }
-    println!("args is {:?}", args);
-    println!("config_cwd is {:?}", config_cwd);
 
-    let (agent, args) = get_cli_command(func, args.clone());
+    if args.len() == 1 && (args[0].to_lowercase() == "-v" || args[0] == "--version") {
+        println!("npack v{}", package.version);
+        process::exit(1);
+    }
+    if args.len() == 1 && (args[0] == "-h" || args[0] == "--help") {
+        println!("npack use the right package manager v{}\n", package.version);
+        println!("ni     -  install");
+        process::exit(1);
+    }
+
+    let (agent, args) = get_cli_command(func, args.clone(), cwd);
 
     let mut command = Command::new(&agent)
         .args(args)
@@ -63,10 +72,11 @@ pub fn run(func: Runner, args: Vec<String>) {
     }
 }
 
-fn get_cli_command(func: Runner, args: Vec<String>) -> (String, Vec<String>) {
+fn get_cli_command(func: Runner, args: Vec<String>, cwd: PathBuf) -> (String, Vec<String>) {
     let global = "-g".to_string();
     if args.contains(&global) {
         return func(Agent::Pnpm, args);
     }
+
     func(Agent::Pnpm, args)
 }

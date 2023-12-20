@@ -8,3 +8,6 @@ edition = "2021"
 [[bin]]
 name = "ni"
 path = "src/bin/ni.rs"
+
+[dependencies]
+cargo_metadata = "0.18.1"
