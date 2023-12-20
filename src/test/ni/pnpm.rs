@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod npm {
+mod pnpm {
     use crate::agents::*;
     use crate::parse::*;
 
@@ -41,5 +41,17 @@ mod npm {
         let (agent, args) = parse_ni(Agent::Pnpm, vec!["--frozen".to_string()]);
         assert_eq!(agent, "pnpm");
         assert_eq!(args, ["i", "--frozen-lockfile"]);
+    }
+    #[test]
+    fn forward1() {
+        let (agent, args) = parse_ni(Agent::Pnpm, vec!["--anything".to_string()]);
+        assert_eq!(agent, "pnpm");
+        assert_eq!(args, ["i", "--anything"]);
+    }
+    #[test]
+    fn forward2() {
+        let (agent, args) = parse_ni(Agent::Pnpm, vec!["-a".to_string()]);
+        assert_eq!(agent, "pnpm");
+        assert_eq!(args, ["i", "-a"]);
     }
 }
