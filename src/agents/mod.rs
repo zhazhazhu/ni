@@ -7,6 +7,18 @@ pub enum Agent {
     Pnpm6,
     Bun,
 }
+impl Agent {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Agent::Npm => "npm",
+            Agent::Yarn => "yarn",
+            Agent::YarnBerry => "yarn@berry",
+            Agent::Pnpm => "pnpm",
+            Agent::Pnpm6 => "pnpm@6",
+            Agent::Bun => "bun",
+        }
+    }
+}
 
 pub struct Agents {
     pub npm: AgentCommands,

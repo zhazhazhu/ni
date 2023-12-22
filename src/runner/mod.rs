@@ -57,12 +57,12 @@ pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
 
     if args.len() == 1 && (args[0].to_lowercase() == "-v" || args[0] == "--version") {
         println!("npack v{}", package.version);
-        process::exit(1);
+        return;
     }
     if args.len() == 1 && (args[0] == "-h" || args[0] == "--help") {
         println!("npack use the right package manager v{}\n", package.version);
         println!("ni     -  install");
-        process::exit(1);
+        return;
     }
 
     let (agent, args) = get_cli_command(func, args.clone(), options.clone());
