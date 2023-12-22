@@ -4,7 +4,13 @@
   "version": "0.0.1",
   "packageManager": "pnpm@8.11.0",
   "devDependencies": {
+    "axios": "^1.6.2",
     "dayjs": "^1.11.10",
+    "vite": "^2.9.16",
     "vue": "^3.3.13"
+  },
+  "dependencies": {
+    "vue-i18n": "^9.8.0",
+    "vue-router": "^4.2.5"
   }
 }

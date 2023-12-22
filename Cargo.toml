@@ -11,3 +11,5 @@ path = "src/bin/ni.rs"
 
 [dependencies]
 cargo_metadata = "0.18.1"
+serde = "1.0.193"
+serde_json = "1.0.108"

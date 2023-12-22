@@ -45,6 +45,8 @@ name = "npack"
 version = "0.0.1"
 dependencies = [
  "cargo_metadata",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

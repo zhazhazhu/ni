@@ -7,34 +7,50 @@ use std::process::{self, Command, Stdio};
 use crate::agents::Agent;
 use crate::detect::detect;
 
+#[derive(Clone)]
 pub struct DetectOptions {
-    pub cwd: Option<String>,
+    pub cwd: PathBuf,
+    pub auto_install: bool,
+    pub programmatic: bool,
+}
+impl Default for DetectOptions {
+    fn default() -> Self {
+        DetectOptions {
+            cwd: env::current_dir().unwrap(),
+            auto_install: false,
+            programmatic: false,
+        }
+    }
 }
 
 pub type Runner = fn(agent: Agent, args: Vec<String>) -> (String, Vec<String>);
 
-pub fn run_cli(func: Runner) {
+pub fn run_cli(func: Runner, options: Option<DetectOptions>) {
     let args = env::args().collect::<Vec<String>>()[1..]
         .to_vec()
         .into_iter()
         .filter(|v| !v.is_empty())
         .collect::<Vec<String>>();
 
-    run(func, args)
+    let mut options = match options {
+        Some(o) => o,
+        None => DetectOptions::default(),
+    };
+
+    run(func, args, &mut options)
 }
 
-pub fn run(func: Runner, args: Vec<String>) {
+pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
     let metadata: Metadata = MetadataCommand::new().no_deps().exec().unwrap();
     let package = metadata.packages.first().unwrap();
 
     let mut args = args;
-    let mut cwd = env::current_dir().unwrap();
     if args.len() > 2 && args[0] == "-C" {
         let path = Path::new(args[1].as_str());
-        cwd = if path.is_absolute() {
+        options.cwd = if path.is_absolute() {
             path.to_path_buf()
         } else {
-            cwd.join(path)
+            options.cwd.join(path)
         };
         args = args[0..2].to_vec();
     }
@@ -49,7 +65,7 @@ pub fn run(func: Runner, args: Vec<String>) {
         process::exit(1);
     }
 
-    let (agent, args) = get_cli_command(func, args.clone(), cwd);
+    let (agent, args) = get_cli_command(func, args.clone(), options.clone());
 
     let mut command = Command::new(&agent)
         .args(args)
@@ -72,11 +88,16 @@ pub fn run(func: Runner, args: Vec<String>) {
     }
 }
 
-fn get_cli_command(func: Runner, args: Vec<String>, cwd: PathBuf) -> (String, Vec<String>) {
+fn get_cli_command(
+    func: Runner,
+    args: Vec<String>,
+    options: DetectOptions,
+) -> (String, Vec<String>) {
     let global = "-g".to_string();
     if args.contains(&global) {
         return func(Agent::Pnpm, args);
     }
+    let agent = detect(options);
 
     func(Agent::Pnpm, args)
 }
