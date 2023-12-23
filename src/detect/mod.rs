@@ -1,12 +1,20 @@
+use console::style;
+use dialoguer::Confirm;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
+    env,
     fs::File,
     io::Read,
     path::{Path, PathBuf},
+    process,
 };
 
-use crate::{agents::Agent, runner::DetectOptions};
+use crate::{
+    agents::Agent,
+    runner::{execa_command, DetectOptions},
+    utils::which_cmd,
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(non_snake_case)]
@@ -17,7 +25,7 @@ struct Package {
     packageManager: Option<String>,
 }
 
-pub fn detect(options: DetectOptions) {
+pub fn detect(options: DetectOptions) -> Option<Agent> {
     let mut agent: Option<Agent> = None;
     let mut version: Option<String> = None;
 
@@ -28,6 +36,23 @@ pub fn detect(options: DetectOptions) {
         ("yarn", Agent::Yarn),
         ("yarn@berry", Agent::YarnBerry),
         ("npm", Agent::Npm),
+    ]
+    .iter()
+    .cloned()
+    .collect();
+    let agent_install: HashMap<Agent, &str> = vec![
+        (Agent::Bun, "https://bun.sh"),
+        (Agent::Pnpm, "https://pnpm.io/installation"),
+        (Agent::Pnpm6, "https://pnpm.io/6.x/installation"),
+        (Agent::Yarn, "https://classic.yarnpkg.com/en/docs/install"),
+        (
+            Agent::YarnBerry,
+            "https://yarnpkg.com/getting-started/install",
+        ),
+        (
+            Agent::Npm,
+            "https://docs.npmjs.com/cli/v8/configuring-npm/install",
+        ),
     ]
     .iter()
     .cloned()
@@ -117,8 +142,50 @@ pub fn detect(options: DetectOptions) {
         }
     }
 
-    println!("{:?}", agent);
-    println!("{:?}", version);
+    if let Some(agent) = &agent {
+        let cmd = which_cmd(&agent.as_str());
+        if cmd == false && options.programmatic == false {
+            if options.auto_install == false {
+                println!(
+                    "{}",
+                    style(format!(
+                        "[ni] Detected {} but it doesn't seem to be installed.",
+                        &agent.as_str()
+                    ))
+                    .yellow()
+                );
+
+                if env::var("CI").is_ok() {
+                    process::exit(1)
+                }
+
+                let link = style(format!("{}", agent_install.get(&agent).unwrap()))
+                    .blue()
+                    .underlined()
+                    .to_string();
+                let confirmation = Confirm::new()
+                    .with_prompt(format!("Would you like to globally install {}?", link))
+                    .interact()
+                    .unwrap();
+
+                if !confirmation {
+                    process::exit(1)
+                }
+            }
+
+            let mut args: Vec<String> = vec!["i".into(), "-g".into()];
+            if let Some(v) = version.clone() {
+                let agent = format!("{}@{}", agent.as_str(), v);
+                args.push(agent);
+            } else {
+                let agent = format!("{}", agent.as_str());
+                args.push(agent);
+            }
+            execa_command("npm", Some(args)).unwrap()
+        }
+    }
+
+    return agent;
 }
 
 pub fn find_up(filename: &str, cwd: &PathBuf) -> Option<String> {

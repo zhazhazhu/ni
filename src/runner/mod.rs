@@ -1,8 +1,8 @@
 use cargo_metadata::{Metadata, MetadataCommand};
-use std::env;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::process::{self, Command, Stdio};
+use std::{env, io};
 
 use crate::agents::Agent;
 use crate::detect::detect;
@@ -67,25 +67,7 @@ pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
 
     let (agent, args) = get_cli_command(func, args.clone(), options.clone());
 
-    let mut command = Command::new(&agent)
-        .args(args)
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("Failed to execute command");
-
-    if let Some(stdout) = command.stdout.take() {
-        let reader = BufReader::new(stdout);
-        for line in reader.lines() {
-            if let Ok(line) = line {
-                println!("{}", line);
-            }
-        }
-    }
-
-    let status = command.wait().expect("Failed to wait for command");
-    if !status.success() {
-        println!("Command execution failed");
-    }
+    execa_command(&agent, Some(args)).unwrap()
 }
 
 fn get_cli_command(
@@ -100,4 +82,31 @@ fn get_cli_command(
     let agent = detect(options);
 
     func(Agent::Pnpm, args)
+}
+
+pub fn execa_command(agent: &str, args: Option<Vec<String>>) -> Result<(), io::Error> {
+    let mut command = Command::new(agent)
+        .args(args.unwrap_or_default())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to execute command");
+
+    if let Some(stdout) = command.stdout.take() {
+        let reader = io::BufReader::new(stdout);
+        for line in reader.lines() {
+            if let Ok(line) = line {
+                println!("{}", line);
+            }
+        }
+    }
+
+    let status = command.wait()?;
+    if !status.success() {
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            "Command execution failed",
+        ));
+    }
+
+    Ok(())
 }

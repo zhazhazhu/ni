@@ -1,4 +1,4 @@
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone, Debug, Eq, Hash)]
 pub enum Agent {
     Npm,
     Yarn,
