@@ -92,15 +92,15 @@ fn get_cli_command(
     if args.contains(&global) {
         return Some(func(get_global_agent(), args, None));
     }
-    let mut temp_agent = DefaultAgent::Prompt;
-    let mut agent = Agent::Npm;
+    #[allow(unused_assignments)]
+    let mut agent = DefaultAgent::Prompt;
     if let Some(v) = detect(options.clone()) {
-        temp_agent = DefaultAgent::Agent(v);
+        agent = DefaultAgent::Agent(v);
     } else {
-        temp_agent = get_default_agent(options.clone().programmatic);
+        agent = get_default_agent(options.clone().programmatic);
     }
 
-    if temp_agent == DefaultAgent::Prompt {
+    if agent == DefaultAgent::Prompt {
         let items: Vec<&&str> = AGENT_MAP.keys().filter(|x| !x.contains("@")).collect();
         let selection = Select::new()
             .with_prompt("Choose the agent")
@@ -109,7 +109,7 @@ fn get_cli_command(
             .unwrap();
         let value = AGENT_MAP.get(items[selection]);
         if let Some(value) = value {
-            agent = value.clone();
+            agent = DefaultAgent::Agent(value.clone());
         } else {
             return None;
         }
@@ -119,7 +119,10 @@ fn get_cli_command(
         has_lock: true,
         cwd: options.cwd,
     };
-    Some(func(agent, args, Some(runner_ctx)))
+    match agent {
+        DefaultAgent::Agent(agent) => Some(func(agent, args, Some(runner_ctx))),
+        DefaultAgent::Prompt => Some(func(Agent::Npm, args, Some(runner_ctx))),
+    }
 }
 
 pub fn execa_command(agent: &str, args: Option<Vec<String>>) -> Result<(), io::Error> {
