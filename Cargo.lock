@@ -146,6 +146,7 @@ dependencies = [
  "cargo_metadata",
  "console",
  "dialoguer",
+ "lazy_static",
  "serde",
  "serde_json",
  "which",

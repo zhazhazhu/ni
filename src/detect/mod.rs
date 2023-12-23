@@ -1,5 +1,6 @@
 use console::style;
 use dialoguer::Confirm;
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
@@ -25,51 +26,50 @@ struct Package {
     packageManager: Option<String>,
 }
 
+lazy_static! {
+    pub static ref AGENT_MAP: HashMap<&'static str, Agent> = {
+        let mut m = HashMap::new();
+        m.insert("bun", Agent::Bun);
+        m.insert("pnpm", Agent::Pnpm);
+        m.insert("pnpm@6", Agent::Pnpm6);
+        m.insert("yarn", Agent::Yarn);
+        m.insert("yarn@berry", Agent::YarnBerry);
+        m.insert("npm", Agent::Npm);
+        m
+    };
+    pub static ref AGENT_INSTALL: HashMap<Agent, &'static str> = {
+        let mut m = HashMap::new();
+        m.insert(Agent::Bun, "https://bun.sh");
+        m.insert(Agent::Pnpm, "https://pnpm.io/installation");
+        m.insert(Agent::Pnpm6, "https://pnpm.io/6.x/installation");
+        m.insert(Agent::Yarn, "https://classic.yarnpkg.com/en/docs/install");
+        m.insert(
+            Agent::YarnBerry,
+            "https://yarnpkg.com/getting-started/install",
+        );
+        m.insert(
+            Agent::Npm,
+            "https://docs.npmjs.com/cli/v8/configuring-npm/install",
+        );
+        m
+    };
+    pub static ref LOCKS_MAP: HashMap<&'static str, Agent> = {
+        let mut m = HashMap::new();
+        m.insert("bun.lockb", Agent::Bun);
+        m.insert("pnpm-lock.yaml", Agent::Pnpm);
+        m.insert("yarn.lock", Agent::Yarn);
+        m.insert("package-lock.json", Agent::Npm);
+        m.insert("npm-shrinkwrap.json", Agent::Npm);
+        m
+    };
+}
+
 pub fn detect(options: DetectOptions) -> Option<Agent> {
     let mut agent: Option<Agent> = None;
     let mut version: Option<String> = None;
 
-    let agent_map: HashMap<&str, Agent> = vec![
-        ("bun", Agent::Bun),
-        ("pnpm", Agent::Pnpm),
-        ("pnpm@6", Agent::Pnpm6),
-        ("yarn", Agent::Yarn),
-        ("yarn@berry", Agent::YarnBerry),
-        ("npm", Agent::Npm),
-    ]
-    .iter()
-    .cloned()
-    .collect();
-    let agent_install: HashMap<Agent, &str> = vec![
-        (Agent::Bun, "https://bun.sh"),
-        (Agent::Pnpm, "https://pnpm.io/installation"),
-        (Agent::Pnpm6, "https://pnpm.io/6.x/installation"),
-        (Agent::Yarn, "https://classic.yarnpkg.com/en/docs/install"),
-        (
-            Agent::YarnBerry,
-            "https://yarnpkg.com/getting-started/install",
-        ),
-        (
-            Agent::Npm,
-            "https://docs.npmjs.com/cli/v8/configuring-npm/install",
-        ),
-    ]
-    .iter()
-    .cloned()
-    .collect();
-    let locks_map: HashMap<&str, Agent> = vec![
-        ("bun.lockb", Agent::Bun),
-        ("pnpm-lock.yaml", Agent::Pnpm),
-        ("yarn.lock", Agent::Yarn),
-        ("package-lock.json", Agent::Npm),
-        ("npm-shrinkwrap.json", Agent::Npm),
-    ]
-    .iter()
-    .cloned()
-    .collect();
-
     let mut lock_path: Option<String> = None;
-    for (lock, _) in locks_map {
+    for (lock, _) in LOCKS_MAP.iter() {
         let path = find_up(lock, &options.cwd);
         if let Some(path) = path {
             lock_path = Some(path);
@@ -118,8 +118,8 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
                                     version = Some("berry".into())
                                 } else if name.to_string() == "pnpm" && ver < 7 {
                                     agent = Some(Agent::Pnpm6);
-                                } else if agent_map.contains_key(name) {
-                                    agent = agent_map.get(name).cloned();
+                                } else if AGENT_MAP.contains_key(name) {
+                                    agent = AGENT_MAP.get(name).cloned();
                                     //TODO plan use HashMap
                                 } else if !options.programmatic {
                                     println!("[ni] Unknown packageManager: {}", &packageManager);
@@ -136,7 +136,7 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
         if agent.is_none() {
             if let Some(file_name) = Path::new(&lock_path).file_name() {
                 if let Some(path) = file_name.to_str() {
-                    agent = agent_map.get(path).cloned();
+                    agent = LOCKS_MAP.get(path).cloned();
                 }
             }
         }
@@ -159,7 +159,7 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
                     process::exit(1)
                 }
 
-                let link = style(format!("{}", agent_install.get(&agent).unwrap()))
+                let link = style(format!("{}", AGENT_INSTALL.get(&agent).unwrap()))
                     .blue()
                     .underlined()
                     .to_string();

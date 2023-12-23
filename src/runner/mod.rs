@@ -1,11 +1,13 @@
 use cargo_metadata::{Metadata, MetadataCommand};
-use std::io::{BufRead, BufReader};
+use dialoguer::Select;
+use std::io::BufRead;
 use std::path::{Path, PathBuf};
-use std::process::{self, Command, Stdio};
+use std::process::{Command, Stdio};
 use std::{env, io};
 
 use crate::agents::Agent;
-use crate::detect::detect;
+use crate::config::{get_default_agent, get_global_agent, DefaultAgent};
+use crate::detect::{detect, AGENT_MAP};
 
 #[derive(Clone)]
 pub struct DetectOptions {
@@ -23,7 +25,14 @@ impl Default for DetectOptions {
     }
 }
 
-pub type Runner = fn(agent: Agent, args: Vec<String>) -> (String, Vec<String>);
+pub struct RunnerContext {
+    pub programmatic: bool,
+    pub has_lock: bool,
+    pub cwd: PathBuf,
+}
+
+pub type Runner =
+    fn(agent: Agent, args: Vec<String>, ctx: Option<RunnerContext>) -> (String, Vec<String>);
 
 pub fn run_cli(func: Runner, options: Option<DetectOptions>) {
     let args = env::args().collect::<Vec<String>>()[1..]
@@ -65,23 +74,52 @@ pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
         return;
     }
 
-    let (agent, args) = get_cli_command(func, args.clone(), options.clone());
+    let command = get_cli_command(func, args.clone(), options.clone());
 
-    execa_command(&agent, Some(args)).unwrap()
+    if let Some((agent, args)) = command {
+        execa_command(&agent, Some(args)).unwrap()
+    } else {
+        return;
+    }
 }
 
 fn get_cli_command(
     func: Runner,
     args: Vec<String>,
     options: DetectOptions,
-) -> (String, Vec<String>) {
+) -> Option<(String, Vec<String>)> {
     let global = "-g".to_string();
     if args.contains(&global) {
-        return func(Agent::Pnpm, args);
+        return Some(func(get_global_agent(), args, None));
     }
-    let agent = detect(options);
+    let mut temp_agent = DefaultAgent::Prompt;
+    let mut agent = Agent::Npm;
+    if let Some(v) = detect(options.clone()) {
+        temp_agent = DefaultAgent::Agent(v);
+    } else {
+        temp_agent = get_default_agent(options.clone().programmatic);
+    }
 
-    func(Agent::Pnpm, args)
+    if temp_agent == DefaultAgent::Prompt {
+        let items: Vec<&&str> = AGENT_MAP.keys().filter(|x| !x.contains("@")).collect();
+        let selection = Select::new()
+            .with_prompt("Choose the agent")
+            .items(&items)
+            .interact()
+            .unwrap();
+        let value = AGENT_MAP.get(items[selection]);
+        if let Some(value) = value {
+            agent = value.clone();
+        } else {
+            return None;
+        }
+    }
+    let runner_ctx = RunnerContext {
+        programmatic: options.programmatic,
+        has_lock: true,
+        cwd: options.cwd,
+    };
+    Some(func(agent, args, Some(runner_ctx)))
 }
 
 pub fn execa_command(agent: &str, args: Option<Vec<String>>) -> Result<(), io::Error> {

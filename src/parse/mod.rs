@@ -2,15 +2,17 @@ use std::process;
 
 use crate::{
     agents::{Agent, AgentCommand, COMMAND},
+    runner::RunnerContext,
     utils::exclude,
 };
 
 const GLOBAL: &str = "-g";
 const FROZEN: &str = "--frozen";
+const FROZEN_IF_PRESENT: &str = "--frozen-if-present";
 
 pub type CommandTuple = (String, Vec<String>);
 
-pub fn parse_ni(agent: Agent, args: Vec<String>) -> CommandTuple {
+pub fn parse_ni(agent: Agent, args: Vec<String>, ctx: Option<RunnerContext>) -> CommandTuple {
     let mut args = args;
     if agent == Agent::Bun {
         args = args
@@ -27,8 +29,16 @@ pub fn parse_ni(agent: Agent, args: Vec<String>) -> CommandTuple {
     if args.contains(&GLOBAL.into()) {
         return get_command(&agent, AgentCommand::Global, exclude(&args, GLOBAL.into()));
     }
+    if args.contains(&FROZEN_IF_PRESENT.into()) {
+        if let Some(ctx) = ctx {
+            if ctx.has_lock == true {
+                return get_command(&agent, AgentCommand::Frozen, exclude(&args, FROZEN.into()));
+            }
+        }
+        return get_command(&agent, AgentCommand::Install, exclude(&args, FROZEN.into()));
+    }
     if args.contains(&FROZEN.into()) {
-        return get_command(&agent, AgentCommand::Frozen, exclude(&args, FROZEN.into()));
+        return get_command(&agent, AgentCommand::Install, exclude(&args, FROZEN.into()));
     }
     if args.len() == 0 || args.iter().all(|item| item.starts_with("-")) {
         return get_command(&agent, AgentCommand::Install, args.clone());
