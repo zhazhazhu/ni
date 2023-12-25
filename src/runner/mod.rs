@@ -1,4 +1,3 @@
-use cargo_metadata::{Metadata, MetadataCommand};
 use dialoguer::Select;
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
@@ -50,8 +49,7 @@ pub fn run_cli(func: Runner, options: Option<DetectOptions>) {
 }
 
 pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
-    let metadata: Metadata = MetadataCommand::new().no_deps().exec().unwrap();
-    let package = metadata.packages.first().unwrap();
+    let version = env!("CARGO_PKG_VERSION");
 
     let mut args = args;
     if args.len() > 2 && args[0] == "-C" {
@@ -65,11 +63,11 @@ pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
     }
 
     if args.len() == 1 && (args[0].to_lowercase() == "-v" || args[0] == "--version") {
-        println!("npack v{}", package.version);
+        println!("npack v{}", version);
         return;
     }
     if args.len() == 1 && (args[0] == "-h" || args[0] == "--help") {
-        println!("npack use the right package manager v{}\n", package.version);
+        println!("npack use the right package manager v{}\n", version);
         println!("ni     -  install");
         return;
     }
