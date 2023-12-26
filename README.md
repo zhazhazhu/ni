@@ -1,16 +1,19 @@
 # ni
 
-~~*`npm i` in a yarn project, again? F\*\*k!*~~
-
 **ni** - use the right package manager
 
-<br>
+<p>
+Rewrite using Rust language, no runtime, no dependencies, can be installed and used, refer to @antfu/ni, specific usage should be consistent with @antfu/ni
+</p>
+
+[@antfu/ni](https://github.com/antfu/ni)
 
 <pre>
-npm i -g <b>@antfu/ni</b>
+cargo install npack</b>
 </pre>
 
 <a href='https://docs.npmjs.com/cli/v6/commands/npm'>npm</a> · <a href='https://yarnpkg.com'>yarn</a> · <a href='https://pnpm.io/'>pnpm</a> · <a href='https://bun.sh/'>bun</a>
+
 
 
 <br>
