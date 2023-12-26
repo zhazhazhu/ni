@@ -29,6 +29,9 @@ path = "src/bin/nu.rs"
 [[bin]]
 name = "na"
 path = "src/bin/na.rs"
+[[bin]]
+name = "nci"
+path = "src/bin/nci.rs"
 
 [dependencies]
 console = "0.15.7"

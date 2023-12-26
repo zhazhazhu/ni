@@ -23,6 +23,15 @@ impl Default for DetectOptions {
         }
     }
 }
+impl DetectOptions {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn with_auto_install(mut self, auto_install: bool) -> Self {
+        self.auto_install = auto_install;
+        self
+    }
+}
 
 pub struct RunnerContext {
     pub programmatic: bool,
