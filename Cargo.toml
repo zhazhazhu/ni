@@ -14,11 +14,16 @@ repository = "https://github.com/zhazhazhu/ni"
 [[bin]]
 name = "ni"
 path = "src/bin/ni.rs"
+[[bin]]
+name = "nr"
+path = "src/bin/nr.rs"
 
 [dependencies]
 console = "0.15.7"
-dialoguer = "0.11.0"
+dialoguer = { version = "0.11.0", features = ["fuzzy-select", "completion"] }
 lazy_static = "1.4.0"
+parking_lot = "0.12.1"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
+tempfile = "3.8.1"
 which = "5.0.0"

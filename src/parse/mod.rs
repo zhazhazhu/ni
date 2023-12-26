@@ -8,6 +8,7 @@ use crate::{
 
 const GLOBAL: &str = "-g";
 const FROZEN: &str = "--frozen";
+const IF_PRESENT: &str = "--if-present";
 const FROZEN_IF_PRESENT: &str = "--frozen-if-present";
 
 pub type CommandTuple = (String, Vec<String>);
@@ -47,6 +48,21 @@ pub fn parse_ni(agent: Agent, args: Vec<String>, ctx: Option<RunnerContext>) -> 
     return get_command(&agent, AgentCommand::Add, args.clone());
 }
 
+pub fn parse_nr(agent: Agent, mut args: Vec<String>) -> CommandTuple {
+    if args.len() == 0 {
+        args.push("start".into())
+    }
+    if !args.is_empty() && args.contains(&IF_PRESENT.into()) {
+        args[0] = format!("--if-present {}", args[0]);
+        return get_command(&agent, AgentCommand::Run, exclude(&args, IF_PRESENT.into()));
+    }
+    if !args.is_empty() {
+        if args.len() > 1 {}
+    }
+
+    return get_command(&agent, AgentCommand::Run, args);
+}
+
 fn get_command(agent: &Agent, command: AgentCommand, args: Vec<String>) -> CommandTuple {
     let agent_command = match agent {
         Agent::Npm => COMMAND.npm,
@@ -75,11 +91,29 @@ fn get_command(agent: &Agent, command: AgentCommand, args: Vec<String>) -> Comma
         process::exit(1)
     }
 
-    let c: Vec<String> = (c.replace("{0}", &args.join(" ")))
-        .trim()
-        .split_whitespace()
-        .map(String::from)
-        .collect();
+    let mut result = Vec::new();
+    if c.contains("{0}") {
+        result = (c.replace("{0}", &args.join(" ")))
+            .trim()
+            .split_whitespace()
+            .map(String::from)
+            .collect();
+    } else if c.contains("{1}") {
+        if args.len() > 1 {
+            let r = format!("{} -- {}", &args[0], &args[1..].join(" "));
+            result = (c.replace("{1}", &r))
+                .trim()
+                .split_whitespace()
+                .map(String::from)
+                .collect();
+        } else {
+            result = (c.replace("{1}", &args[0]))
+                .trim()
+                .split_whitespace()
+                .map(String::from)
+                .collect();
+        }
+    }
 
-    (c[0].clone(), c[1..].to_vec())
+    (result[0].clone(), result[1..].to_vec())
 }

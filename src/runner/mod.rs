@@ -1,4 +1,4 @@
-use dialoguer::Select;
+use dialoguer::{theme::ColorfulTheme, Select};
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -100,8 +100,9 @@ fn get_cli_command(
 
     if agent == DefaultAgent::Prompt {
         let items: Vec<&&str> = AGENT_MAP.keys().filter(|x| !x.contains("@")).collect();
-        let selection = Select::new()
+        let selection = Select::with_theme(&ColorfulTheme::default())
             .with_prompt("Choose the agent")
+            .default(0)
             .items(&items)
             .interact()
             .unwrap();

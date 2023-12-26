@@ -69,7 +69,7 @@ pub const COMMAND: Agents = Agents {
 
 pub const NPM_COMMAND: AgentCommands = AgentCommands {
     agent: "npm {0}",
-    run: "",
+    run: "npm run {1}",
     install: "npm i {0}",
     frozen: "npm ci",
     global: "npm i -g {0}",
@@ -125,7 +125,7 @@ pub const PNPM_COMMAND: AgentCommands = AgentCommands {
 
 pub const PNPM6_COMMAND: AgentCommands = AgentCommands {
     agent: "pnpm {0}",
-    run: "pnpm run {0}", //TODO
+    run: "pnpm run {1}",
     install: "pnpm i {0}",
     frozen: "pnpm i --frozen-lockfile",
     global: "pnpm add -g {0}",

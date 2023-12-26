@@ -2,6 +2,10 @@
   "name": "test",
   "type": "module",
   "version": "0.0.1",
+  "scripts": {
+    "version": "cargo -V",
+    "help": "cargo --help"
+  },
   "devDependencies": {
     "axios": "^1.6.2",
     "dayjs": "^1.11.10",
