@@ -23,6 +23,9 @@ path = "src/bin/nun.rs"
 [[bin]]
 name = "nlx"
 path = "src/bin/nlx.rs"
+[[bin]]
+name = "nu"
+path = "src/bin/nu.rs"
 
 [dependencies]
 console = "0.15.7"

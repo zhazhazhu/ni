@@ -78,6 +78,17 @@ pub fn parse_nlx(agent: Agent, args: Vec<String>, _: Option<RunnerContext>) -> C
     get_command(&agent, AgentCommand::Execute, args)
 }
 
+pub fn parse_nu(agent: Agent, args: Vec<String>, _: Option<RunnerContext>) -> CommandTuple {
+    if !args.is_empty() && args.contains(&"-i".into()) {
+        return get_command(
+            &agent,
+            AgentCommand::UpgradeInteractive,
+            exclude(&args, "-i".into()),
+        );
+    }
+    get_command(&agent, AgentCommand::Upgrade, args)
+}
+
 fn get_command(agent: &Agent, command: AgentCommand, args: Vec<String>) -> CommandTuple {
     let agent_command = match agent {
         Agent::Npm => COMMAND.npm,
