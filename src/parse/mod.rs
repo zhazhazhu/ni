@@ -63,6 +63,17 @@ pub fn parse_nr(agent: Agent, mut args: Vec<String>) -> CommandTuple {
     return get_command(&agent, AgentCommand::Run, args);
 }
 
+pub fn parse_nun(agent: Agent, args: Vec<String>, _: Option<RunnerContext>) -> CommandTuple {
+    if !args.is_empty() && args.contains(&GLOBAL.into()) {
+        return get_command(
+            &agent,
+            AgentCommand::GlobalUninstall,
+            exclude(&args, GLOBAL.into()),
+        );
+    }
+    return get_command(&agent, AgentCommand::Uninstall, args);
+}
+
 fn get_command(agent: &Agent, command: AgentCommand, args: Vec<String>) -> CommandTuple {
     let agent_command = match agent {
         Agent::Npm => COMMAND.npm,
