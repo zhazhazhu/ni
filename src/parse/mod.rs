@@ -74,6 +74,10 @@ pub fn parse_nun(agent: Agent, args: Vec<String>, _: Option<RunnerContext>) -> C
     return get_command(&agent, AgentCommand::Uninstall, args);
 }
 
+pub fn parse_nlx(agent: Agent, args: Vec<String>, _: Option<RunnerContext>) -> CommandTuple {
+    get_command(&agent, AgentCommand::Execute, args)
+}
+
 fn get_command(agent: &Agent, command: AgentCommand, args: Vec<String>) -> CommandTuple {
     let agent_command = match agent {
         Agent::Npm => COMMAND.npm,

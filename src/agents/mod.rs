@@ -83,7 +83,7 @@ pub const NPM_COMMAND: AgentCommands = AgentCommands {
 
 pub const YARN_COMMAND: AgentCommands = AgentCommands {
     agent: "yarn {0}",
-    run: "yarn run {0}", //TODO
+    run: "yarn run {0}",
     install: "yarn install {0}",
     frozen: "yarn install --frozen-lockfile",
     global: "yarn global add {0}",
