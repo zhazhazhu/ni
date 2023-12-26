@@ -20,9 +20,9 @@ use crate::{
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(non_snake_case)]
 struct Package {
-    name: String,
-    r#type: String,
-    version: String,
+    name: Option<String>,
+    r#type: Option<String>,
+    version: Option<String>,
     packageManager: Option<String>,
 }
 
