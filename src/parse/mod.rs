@@ -89,6 +89,10 @@ pub fn parse_nu(agent: Agent, args: Vec<String>, _: Option<RunnerContext>) -> Co
     get_command(&agent, AgentCommand::Upgrade, args)
 }
 
+pub fn parse_na(agent: Agent, args: Vec<String>, _: Option<RunnerContext>) -> CommandTuple {
+    get_command(&agent, AgentCommand::Agent, args)
+}
+
 fn get_command(agent: &Agent, command: AgentCommand, args: Vec<String>) -> CommandTuple {
     let agent_command = match agent {
         Agent::Npm => COMMAND.npm,
