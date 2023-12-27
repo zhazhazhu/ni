@@ -2,10 +2,12 @@ name: build
 on:
   push:
     tags:
-      - 'v*'
+      - "[0-9]+.[0-9]+.[0-9]+"
   
 jobs:
   build:
+    permissions:
+      contents: write
     name: build
     runs-on: ${{ matrix.os }}
     strategy:
@@ -13,15 +15,23 @@ jobs:
         build: [linux, macos, windows]
         include:
           - build: linux
-            os: ubuntu-18.04
+            os: ubuntu-latest
             rust: nightly
             target: x86_64-unknown-linux-musl
             archive-name: npack-linux.tar.gz
+
           - build: macos
             os: macos-latest
             rust: nightly
             target: x86_64-apple-darwin
             archive-name: npack-macos.tar.gz
+
+          - build: macos-aarch64
+            os: macos-latest
+            rust: nightly
+            target: aarch64-apple-darwin
+            archive-name: npack-macos-aarch64.tar.gz
+
           - build: windows
             os: windows-2019
             rust: nightly-x86_64-msvc
@@ -48,7 +58,14 @@ jobs:
 
       - name: Strip binary (linux and macos)
         if: matrix.build == 'linux' || matrix.build == 'macos'
-        run: strip "target/${{ matrix.target }}/release/npack"
+        run: |
+          strip "target/${{ matrix.target }}/release/na"
+          strip "target/${{ matrix.target }}/release/nci"
+          strip "target/${{ matrix.target }}/release/ni"
+          strip "target/${{ matrix.target }}/release/nlx"
+          strip "target/${{ matrix.target }}/release/nr"
+          strip "target/${{ matrix.target }}/release/nu"
+          strip "target/${{ matrix.target }}/release/nun"
 
       - name: Build archive
         shell: bash
@@ -57,14 +74,43 @@ jobs:
           cp LICENSE README.md archive/
           cd archive
           if [ "${{ matrix.build }}" = "windows" ]; then
-            cp "../target/${{ matrix.target }}/release/npack.exe" ./
-            7z a "${{ matrix.archive-name }}" LICENSE README.md npack.exe
+            cp "../target/${{ matrix.target }}/release/na.exe" ./
+            cp "../target/${{ matrix.target }}/release/nci.exe" ./
+            cp "../target/${{ matrix.target }}/release/ni.exe" ./
+            cp "../target/${{ matrix.target }}/release/nlx.exe" ./
+            cp "../target/${{ matrix.target }}/release/nr.exe" ./
+            cp "../target/${{ matrix.target }}/release/nu.exe" ./
+            cp "../target/${{ matrix.target }}/release/nun.exe" ./
+            7z a "${{ matrix.archive-name }}" LICENSE README.md na.exe nci.exe ni.exe nlx.exe nr.exe nu.exe nun.exe
           else
-            cp "../target/${{ matrix.target }}/release/npack" ./
-            tar -czf "${{ matrix.archive-name }}" LICENSE README.md npack
+            cp "../target/${{ matrix.target }}/release/na" ./
+            cp "../target/${{ matrix.target }}/release/nci" ./
+            cp "../target/${{ matrix.target }}/release/ni" ./
+            cp "../target/${{ matrix.target }}/release/nlx" ./
+            cp "../target/${{ matrix.target }}/release/nr" ./
+            cp "../target/${{ matrix.target }}/release/nu" ./
+            cp "../target/${{ matrix.target }}/release/nun" ./
+            tar -czf "${{ matrix.archive-name }}" LICENSE README.md na nci ni nlx nr nu nun
           fi
+
+      - name: Calculate SHA256
+        id: hash
+        run: |
+          echo "::set-output name=sha256::$(shasum -a 256 archive/${{ matrix.archive-name }} | awk '{print $1}')"
+      
+      - name: Create SHA256 File
+        run: echo "${{ steps.hash.outputs.sha256 }}" > "${{ matrix.archive-name }}.sha256"
+
       - name: Upload archive
         uses: actions/upload-artifact@v1
         with:
           name: ${{ matrix.archive-name }}
           path: archive/${{ matrix.archive-name }}
+      
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+           archive/${{ matrix.archive-name }}
+           ${{ matrix.archive-name }}.sha256
