@@ -33,13 +33,21 @@ pub fn parse_ni(agent: Agent, args: Vec<String>, ctx: Option<RunnerContext>) -> 
     if args.contains(&FROZEN_IF_PRESENT.into()) {
         if let Some(ctx) = ctx {
             if ctx.has_lock == true {
-                return get_command(&agent, AgentCommand::Frozen, exclude(&args, FROZEN.into()));
+                return get_command(
+                    &agent,
+                    AgentCommand::Frozen,
+                    exclude(&args, FROZEN_IF_PRESENT.into()),
+                );
             }
         }
-        return get_command(&agent, AgentCommand::Install, exclude(&args, FROZEN.into()));
+        return get_command(
+            &agent,
+            AgentCommand::Install,
+            exclude(&args, FROZEN_IF_PRESENT.into()),
+        );
     }
     if args.contains(&FROZEN.into()) {
-        return get_command(&agent, AgentCommand::Install, exclude(&args, FROZEN.into()));
+        return get_command(&agent, AgentCommand::Frozen, exclude(&args, FROZEN.into()));
     }
     if args.len() == 0 || args.iter().all(|item| item.starts_with("-")) {
         return get_command(&agent, AgentCommand::Install, args.clone());
@@ -143,6 +151,8 @@ fn get_command(agent: &Agent, command: AgentCommand, args: Vec<String>) -> Comma
                 .map(String::from)
                 .collect();
         }
+    } else {
+        result = c.trim().split_whitespace().map(String::from).collect();
     }
 
     (result[0].clone(), result[1..].to_vec())
