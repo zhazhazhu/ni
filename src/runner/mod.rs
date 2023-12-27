@@ -1,3 +1,4 @@
+use console::style;
 use dialoguer::{theme::ColorfulTheme, Select};
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
@@ -72,12 +73,23 @@ pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
     }
 
     if args.len() == 1 && (args[0].to_lowercase() == "-v" || args[0] == "--version") {
-        println!("npack v{}", version);
+        println!("npack   {}", style(format!("v{}", version)).blue());
         return;
     }
     if args.len() == 1 && (args[0] == "-h" || args[0] == "--help") {
         println!("npack use the right package manager v{}\n", version);
-        println!("ni     -  install");
+        println!("ni    -   install");
+        println!("nr    -   run");
+        println!("nlx   -   execute");
+        println!("nu    -   upgrade");
+        println!("nun   -   uninstall");
+        println!("nci   -   uninstall");
+        println!("na    -   agent alias");
+        println!("ni -v -   show used agent");
+        println!(
+            "{}",
+            style("\ncheck https://github.com/zhazhazhu/ni for more documentation.").yellow()
+        );
         return;
     }
 
