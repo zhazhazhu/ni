@@ -136,7 +136,8 @@ fn get_cli_command(
 pub fn execa_command(agent: &str, args: Option<Vec<String>>) -> Result<(), io::Error> {
     let mut command = Command::new(agent)
         .args(args.unwrap_or_default())
-        .stdout(Stdio::piped())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .spawn()
         .expect("Failed to execute command");
 
