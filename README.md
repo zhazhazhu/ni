@@ -8,9 +8,13 @@ Rewrite using Rust language, no runtime, no dependencies, can be installed and u
 
 [@antfu/ni](https://github.com/antfu/ni)
 
-<pre>
-cargo install npack</b>
-</pre>
+```bash
+curl https://ni.qzzhu.cn/install.sh | bash
+```
+
+```bash
+cargo install npack
+```
 
 <a href='https://docs.npmjs.com/cli/v6/commands/npm'>npm</a> · <a href='https://yarnpkg.com'>yarn</a> · <a href='https://pnpm.io/'>pnpm</a> · <a href='https://bun.sh/'>bun</a>
 
