@@ -127,33 +127,28 @@ fn get_command(agent: &Agent, command: AgentCommand, args: Vec<String>) -> Comma
 
     if c.is_empty() {
         process::exit(1)
-    }
+    };
 
-    let mut result = Vec::new();
-    if c.contains("{0}") {
-        result = (c.replace("{0}", &args.join(" ")))
+    let result: Vec<String> = if c.contains("{0}") {
+        (c.replace("{0}", &args.join(" ")))
             .trim()
             .split_whitespace()
             .map(String::from)
-            .collect();
+            .collect()
     } else if c.contains("{1}") {
-        if args.len() > 1 {
-            let r = format!("{} -- {}", &args[0], &args[1..].join(" "));
-            result = (c.replace("{1}", &r))
-                .trim()
-                .split_whitespace()
-                .map(String::from)
-                .collect();
+        let r = if args.len() > 1 {
+            format!("{} -- {}", &args[0], &args[1..].join(" "))
         } else {
-            result = (c.replace("{1}", &args[0]))
-                .trim()
-                .split_whitespace()
-                .map(String::from)
-                .collect();
-        }
+            args[0].to_string()
+        };
+        (c.replace("{1}", &r))
+            .trim()
+            .split_whitespace()
+            .map(String::from)
+            .collect()
     } else {
-        result = c.trim().split_whitespace().map(String::from).collect();
-    }
+        c.trim().split_whitespace().map(String::from).collect()
+    };
 
     (result[0].clone(), result[1..].to_vec())
 }
