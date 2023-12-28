@@ -59,7 +59,6 @@ done
 
 rm -rf "$DOWNLOAD_DIR"
 
-
 ensure_containing_dir_exists() {
   local CONTAINING_DIR
   CONTAINING_DIR="$(dirname "$1")"
@@ -122,6 +121,7 @@ setup_shell() {
     exit 1
   fi
 
+  echo '# npack end' >>$CONF_FILE
   echo ""
   echo "In order to apply the changes, open a new terminal or run the following command:"
   echo ""
