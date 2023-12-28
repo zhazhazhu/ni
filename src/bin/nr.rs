@@ -1,7 +1,7 @@
 use std::process;
 
 use console::style;
-use dialoguer::{theme::ColorfulTheme, Select};
+use dialoguer::FuzzySelect;
 use npack::{
     parse::parse_nr,
     runner::run_cli,
@@ -21,6 +21,7 @@ impl ToString for ScriptRaw {
         let key = self.key.clone();
         let description = self.description.clone();
         let item = format!("{}    {}", style(key).cyan(), style(description).dim());
+        println!("selection option {}", item);
         item
     }
 }
@@ -84,8 +85,8 @@ fn main() {
                                         };
                                     }
 
-                                    let select = Select::with_theme(&ColorfulTheme::default())
-                                        .with_prompt("script to run")
+                                    let select = FuzzySelect::new()
+                                        .with_prompt("script to run:")
                                         .default(0)
                                         .items(&raw)
                                         .interact()
