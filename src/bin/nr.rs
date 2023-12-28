@@ -1,7 +1,8 @@
+use std::fmt::Display;
 use std::process;
 
 use console::style;
-use dialoguer::FuzzySelect;
+use inquire::Select;
 use npack::{
     parse::parse_nr,
     runner::run_cli,
@@ -16,12 +17,12 @@ struct ScriptRaw {
     pub description: String,
 }
 
-impl ToString for ScriptRaw {
-    fn to_string(&self) -> String {
+impl Display for ScriptRaw {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let key = self.key.clone();
         let description = self.description.clone();
         let item = format!("{}    {}", style(key).cyan(), style(description).dim());
-        item
+        write!(f, "{}", item)
     }
 }
 
@@ -84,14 +85,11 @@ fn main() {
                                         };
                                     }
 
-                                    let select = FuzzySelect::new()
-                                        .with_prompt("script to run:")
-                                        .default(0)
-                                        .items(&raw)
-                                        .interact()
-                                        .unwrap();
+                                    let ans = Select::new("script to run:", raw).prompt();
 
-                                    args.push(raw[select].key.to_string());
+                                    if let Ok(ans) = ans {
+                                        args.push(ans.key);
+                                    }
                                 }
                                 None => {}
                             }
