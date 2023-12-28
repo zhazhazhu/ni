@@ -21,7 +21,6 @@ impl ToString for ScriptRaw {
         let key = self.key.clone();
         let description = self.description.clone();
         let item = format!("{}    {}", style(key).cyan(), style(description).dim());
-        println!("selection option {}", item);
         item
     }
 }
