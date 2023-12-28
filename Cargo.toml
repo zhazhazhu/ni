@@ -38,6 +38,8 @@ exclude = ["install.sh"]
 [dependencies]
 console = "0.15.7"
 dialoguer = { version = "0.11.0", features = ["fuzzy-select", "completion"] }
+dirs = "5.0.1"
+rust-ini = "0.20.0"
 lazy_static = "1.4.0"
 parking_lot = "0.12.1"
 serde = { version = "1.0.193", features = ["derive"] }
