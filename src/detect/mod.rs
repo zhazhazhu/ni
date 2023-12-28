@@ -1,5 +1,6 @@
 use console::style;
 use dialoguer::Confirm;
+use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -24,9 +25,9 @@ pub struct Package {
     pub r#type: Option<String>,
     pub version: Option<String>,
     pub packageManager: Option<String>,
-    pub scripts: Option<HashMap<String, String>>,
+    pub scripts: Option<IndexMap<String, String>>,
     #[serde(rename = "scripts-info")]
-    pub scripts_info: Option<HashMap<String, String>>,
+    pub scripts_info: Option<IndexMap<String, String>>,
 }
 
 lazy_static! {

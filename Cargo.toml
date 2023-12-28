@@ -42,8 +42,9 @@ dirs = "5.0.1"
 rust-ini = "0.20.0"
 lazy_static = "1.4.0"
 parking_lot = "0.12.1"
-serde = { version = "1.0.193", features = ["derive"] }
-serde_json = "1.0.108"
+serde = { version = "1.0.193", features = ["derive", "default"] }
+serde_json = { version = "1.0.108", features = ["preserve_order"] }
 tempfile = "3.8.1"
 which = "5.0.0"
 inquire = "0.6.2"
+indexmap = { version = "2.1.0", features = ["serde"] }
