@@ -78,12 +78,10 @@ setup_shell() {
     echo ""
     echo '  # npack'
     echo '  export PATH="'"$INSTALL_DIR"':$PATH"'
-    echo '  eval "`npack env`"'
 
     echo '' >>$CONF_FILE
     echo '# npack' >>$CONF_FILE
     echo 'export PATH="'$INSTALL_DIR':$PATH"' >>$CONF_FILE
-    echo 'eval "`npack env`"' >>$CONF_FILE
 
   elif [ "$CURRENT_SHELL" = "fish" ]; then
     CONF_FILE=$HOME/.config/fish/conf.d/npack.fish
@@ -109,12 +107,10 @@ setup_shell() {
     echo ""
     echo '  # npack'
     echo '  export PATH="'"$INSTALL_DIR"':$PATH"'
-    echo '  eval "`npack env`"'
 
     echo '' >>$CONF_FILE
     echo '# npack' >>$CONF_FILE
     echo 'export PATH="'"$INSTALL_DIR"':$PATH"' >>$CONF_FILE
-    echo 'eval "`npack env`"' >>$CONF_FILE
 
   else
     echo "Could not infer shell type. Please set up manually."
