@@ -2,23 +2,29 @@
 
 **ni** - use the right package manager
 
-<p>
-Rewrite using Rust language, no runtime, no dependencies, can be installed and used, refer to @antfu/ni, specific usage should be consistent with @antfu/ni
-</p>
+#### Rewrite using Rust language, no runtime, no dependencies, can be installed and used, refer to @antfu/ni, specific usage should be consistent with @antfu/ni
 
-[@antfu/ni](https://github.com/antfu/ni)
+### [@antfu/ni](https://github.com/antfu/ni)
 
-```bash
-curl https://ni.qzzhu.cn/install.sh | bash
-```
+# Install
+
+## Using Cargo (Linux/macOS/Windows)
 
 ```bash
 cargo install npack
 ```
 
+## Using a script (macOS/Linux)
+
+For bash, zsh and fish shells, there's an automatic installation script.
+
+First ensure that curl and unzip are already installed on you operating system. Then execute:
+
+```bash
+curl https://ni.qzzhu.cn/install.sh | bash
+```
+
 <a href='https://docs.npmjs.com/cli/v6/commands/npm'>npm</a> · <a href='https://yarnpkg.com'>yarn</a> · <a href='https://pnpm.io/'>pnpm</a> · <a href='https://bun.sh/'>bun</a>
-
-
 
 <br>
 
