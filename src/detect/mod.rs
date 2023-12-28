@@ -17,13 +17,16 @@ use crate::{
     utils::which_cmd,
 };
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 #[allow(non_snake_case)]
-struct Package {
-    name: Option<String>,
-    r#type: Option<String>,
-    version: Option<String>,
-    packageManager: Option<String>,
+pub struct Package {
+    pub name: Option<String>,
+    pub r#type: Option<String>,
+    pub version: Option<String>,
+    pub packageManager: Option<String>,
+    pub scripts: Option<HashMap<String, String>>,
+    #[serde(rename = "scripts-info")]
+    pub scripts_info: Option<HashMap<String, String>>,
 }
 
 lazy_static! {

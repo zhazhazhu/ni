@@ -1,18 +1,7 @@
-use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs::File, io::Read, path::Path};
+use std::{fs::File, io::Read, path::Path};
 use which::which;
 
-#[derive(Serialize, Deserialize, Debug, Default)]
-#[allow(non_snake_case)]
-pub struct Package {
-    pub name: String,
-    pub r#type: String,
-    pub version: String,
-    pub packageManager: Option<String>,
-    pub scripts: Option<HashMap<String, String>>,
-    #[serde(rename = "scripts-info")]
-    pub scripts_info: Option<HashMap<String, String>>,
-}
+use crate::detect::Package;
 
 pub fn exclude<T: PartialEq + Clone>(arr: &[T], v: T) -> Vec<T> {
     arr.iter().cloned().filter(|item| *item != v).collect()
