@@ -4,7 +4,6 @@ use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashMap,
     env,
     fs::File,
     io::Read,
@@ -31,8 +30,8 @@ pub struct Package {
 }
 
 lazy_static! {
-    pub static ref AGENT_MAP: HashMap<&'static str, Agent> = {
-        let mut m = HashMap::new();
+    pub static ref AGENT_MAP: IndexMap<&'static str, Agent> = {
+        let mut m = IndexMap::new();
         m.insert("bun", Agent::Bun);
         m.insert("pnpm", Agent::Pnpm);
         m.insert("pnpm@6", Agent::Pnpm6);
@@ -41,8 +40,8 @@ lazy_static! {
         m.insert("npm", Agent::Npm);
         m
     };
-    pub static ref AGENT_INSTALL: HashMap<Agent, &'static str> = {
-        let mut m = HashMap::new();
+    pub static ref AGENT_INSTALL: IndexMap<Agent, &'static str> = {
+        let mut m = IndexMap::new();
         m.insert(Agent::Bun, "https://bun.sh");
         m.insert(Agent::Pnpm, "https://pnpm.io/installation");
         m.insert(Agent::Pnpm6, "https://pnpm.io/6.x/installation");
@@ -57,8 +56,8 @@ lazy_static! {
         );
         m
     };
-    pub static ref LOCKS_MAP: HashMap<&'static str, Agent> = {
-        let mut m = HashMap::new();
+    pub static ref LOCKS_MAP: IndexMap<&'static str, Agent> = {
+        let mut m = IndexMap::new();
         m.insert("bun.lockb", Agent::Bun);
         m.insert("pnpm-lock.yaml", Agent::Pnpm);
         m.insert("yarn.lock", Agent::Yarn);
@@ -163,7 +162,7 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
                     process::exit(1)
                 }
 
-                let link = style(format!("{}", AGENT_INSTALL.get(&agent).unwrap()))
+                let link = style(format!("{}", AGENT_INSTALL.get(agent).unwrap()))
                     .blue()
                     .underlined()
                     .to_string();

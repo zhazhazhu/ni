@@ -1,8 +1,8 @@
 use console::style;
-use dialoguer::{theme::ColorfulTheme, Select};
+use inquire::Select;
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::{self, Command, Stdio};
 use std::{env, io};
 
 use crate::agents::Agent;
@@ -121,17 +121,16 @@ fn get_cli_command(
 
     if agent == DefaultAgent::Prompt {
         let items: Vec<&&str> = AGENT_MAP.keys().filter(|x| !x.contains("@")).collect();
-        let selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Choose the agent")
-            .default(0)
-            .items(&items)
-            .interact()
-            .unwrap();
-        let value = AGENT_MAP.get(items[selection]);
-        if let Some(value) = value {
-            agent = DefaultAgent::Agent(value.clone());
+        let selection = Select::new("script to run:", items).prompt();
+        if let Ok(selection) = selection {
+            let value = AGENT_MAP.get(selection);
+            if let Some(value) = value {
+                agent = DefaultAgent::Agent(value.clone());
+            } else {
+                return None;
+            }
         } else {
-            return None;
+            process::exit(1)
         }
     }
     let runner_ctx = RunnerContext {
