@@ -4,7 +4,22 @@ version = "0.0.14"
 edition = "2021"
 description = "Use the right package manager"
 authors = ["fangyuan.leslie@gmail.com"]
-keywords = ["ni", "npm", "yarn", "pnpm", "bun"]
+keywords = [
+  "npack",
+  "cli",
+  "package-manager",
+  "ni",
+  "nr",
+  "nun",
+  "nlx",
+  "nu",
+  "na",
+  "nci",
+  "npm",
+  "yarn",
+  "pnpm",
+  "bun",
+]
 license = "MIT"
 homepage = "https://github.com/zhazhazhu/ni"
 repository = "https://github.com/zhazhazhu/ni"
