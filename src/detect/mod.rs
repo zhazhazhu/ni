@@ -1,6 +1,6 @@
 use console::style;
-use dialoguer::Confirm;
 use indexmap::IndexMap;
+use inquire::Confirm;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -106,14 +106,15 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
                         };
                         let parts = parts.split('@').collect::<Vec<&str>>();
                         if let [name, ver] = parts.as_slice() {
-                            version = ver
+                            version = Some(ver.to_string());
+                            let ver = ver
                                 .split(".")
                                 .map(String::from)
                                 .collect::<Vec<String>>()
                                 .first()
                                 .map(String::from);
 
-                            if let Some(ver) = &version {
+                            if let Some(ver) = &ver {
                                 let ver = ver.parse::<i32>().unwrap();
 
                                 if name.to_string() == "yarn" && ver > 1 {
@@ -161,14 +162,15 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
                 if env::var("CI").is_ok() {
                     process::exit(1)
                 }
-
-                let link = style(format!("{}", AGENT_INSTALL.get(agent).unwrap()))
+                let install_link = style(AGENT_INSTALL.get(agent).unwrap())
                     .blue()
                     .underlined()
                     .to_string();
-                let confirmation = Confirm::new()
-                    .with_prompt(format!("Would you like to globally install {}?", link))
-                    .interact()
+                let install_confirm_text =
+                    format!("Would you like to globally install {}?", install_link);
+                let confirmation = Confirm::new(&install_confirm_text)
+                    .with_default(false)
+                    .prompt()
                     .unwrap();
 
                 if !confirmation {

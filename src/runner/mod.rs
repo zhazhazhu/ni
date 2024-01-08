@@ -85,10 +85,10 @@ pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
         println!("nun   -   uninstall");
         println!("nci   -   uninstall");
         println!("na    -   agent alias");
-        println!("ni -v -   show used agent");
+        print!("ni -v -   show used agent");
         println!(
             "{}",
-            style("\ncheck https://github.com/zhazhazhu/ni for more documentation.").yellow()
+            style("\ncheck https://github.com/zhazhazhu/ni for more documentation.").blue()
         );
         return;
     }
