@@ -83,7 +83,7 @@ pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
         println!("nlx   -   execute");
         println!("nu    -   upgrade");
         println!("nun   -   uninstall");
-        println!("nci   -   uninstall");
+        println!("nci   -   clean install");
         println!("na    -   agent alias");
         print!("ni -v -   show used agent");
         println!(
