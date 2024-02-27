@@ -161,13 +161,7 @@ pub fn execa_command(agent: &str, args: Option<Vec<String>>) -> Result<(), io::E
         }
     }
 
-    let status = command.wait()?;
-    if !status.success() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "Command execution failed",
-        ));
-    }
+    command.wait()?;
 
     Ok(())
 }

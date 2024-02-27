@@ -108,7 +108,6 @@ fn main() {
                     }
                 }
                 None => {
-                    println!("hi");
                     storage.last_run_command = Some(args[0].to_string());
                     dump(&storage).unwrap();
                 }
