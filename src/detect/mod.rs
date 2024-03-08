@@ -180,7 +180,8 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
 
             let mut args: Vec<String> = vec!["i".into(), "-g".into()];
             if let Some(v) = version.clone() {
-                let agent = format!("{}@{}", agent.as_str(), v);
+                let agent = agent.as_str().split("@").collect::<Vec<&str>>()[0];
+                let agent = format!("{agent}@{v}");
                 args.push(agent);
             } else {
                 let agent = format!("{}", agent.as_str());
