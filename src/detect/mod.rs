@@ -105,30 +105,26 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
                             String::from(&packageManager)
                         };
                         let parts = parts.split('@').collect::<Vec<&str>>();
-                        if let [name, ver] = parts.as_slice() {
-                            version = Some(ver.to_string());
-                            let ver = ver
-                                .split(".")
-                                .map(String::from)
-                                .collect::<Vec<String>>()
-                                .first()
-                                .map(String::from);
+                        let name = parts[0];
+                        version = Some(parts[1].to_string());
+                        let ver = parts[1]
+                            .split(".")
+                            .map(String::from)
+                            .collect::<Vec<String>>()[0]
+                            .to_string();
 
-                            if let Some(ver) = &ver {
-                                let ver = ver.parse::<i32>().unwrap();
+                        let ver = ver.parse::<i32>().unwrap();
 
-                                if name.to_string() == "yarn" && ver > 1 {
-                                    agent = Some(Agent::YarnBerry);
-                                    version = Some("berry".into())
-                                } else if name.to_string() == "pnpm" && ver < 7 {
-                                    agent = Some(Agent::Pnpm6);
-                                } else if AGENT_MAP.contains_key(name) {
-                                    agent = AGENT_MAP.get(name).cloned();
-                                    //TODO plan use HashMap
-                                } else if !options.programmatic {
-                                    println!("[ni] Unknown packageManager: {}", &packageManager);
-                                }
-                            }
+                        if name.to_string() == "yarn" && ver > 1 {
+                            agent = Some(Agent::YarnBerry);
+                            version = Some("berry".into())
+                        } else if name.to_string() == "pnpm" && ver < 7 {
+                            agent = Some(Agent::Pnpm6);
+                        } else if AGENT_MAP.contains_key(name) {
+                            agent = AGENT_MAP.get(name).cloned();
+                            //TODO plan use HashMap
+                        } else if !options.programmatic {
+                            println!("[ni] Unknown packageManager: {}", &packageManager);
                         }
                     }
                 }
@@ -147,7 +143,7 @@ pub fn detect(options: DetectOptions) -> Option<Agent> {
     }
 
     if let Some(agent) = &agent {
-        let cmd = which_cmd(&agent.as_str());
+        let cmd = which_cmd(&agent.as_str().split("@").collect::<Vec<&str>>()[0]);
         if cmd == false && options.programmatic == false {
             if options.auto_install == false {
                 println!(
