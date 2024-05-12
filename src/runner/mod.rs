@@ -8,6 +8,7 @@ use std::{env, io};
 use crate::agents::Agent;
 use crate::config::{get_default_agent, get_global_agent, DefaultAgent};
 use crate::detect::{detect, AGENT_MAP};
+use crate::utils::get_volta_prefix;
 
 #[derive(Clone)]
 pub struct DetectOptions {
@@ -95,7 +96,14 @@ pub fn run(func: Runner, args: Vec<String>, options: &mut DetectOptions) {
 
     let command = get_cli_command(func, args.clone(), options.clone());
 
-    if let Some((agent, args)) = command {
+    if let Some((mut agent, mut args)) = command {
+        let volta_prefix = get_volta_prefix();
+        if let Ok((volta, volta_args)) = volta_prefix {
+            args.insert(0, agent);
+            agent = volta;
+            args = volta_args.into_iter().chain(args.into_iter()).collect();
+        }
+
         execa_command(&agent, Some(args)).unwrap()
     } else {
         return;

@@ -33,3 +33,16 @@ pub fn get_package_json(path: &str) -> Package {
     }
     Package::default()
 }
+
+// https://blog.volta.sh/2020/11/25/command-spotlight-volta-run/
+pub fn get_volta_prefix() -> Result<(String, Vec<String>), ()> {
+    let volta_prefix = ("volta".to_string(), vec!["run".to_string()]);
+
+    let has_volta_command = which_cmd("volta");
+
+    if has_volta_command {
+        Ok(volta_prefix)
+    } else {
+        Err(())
+    }
+}
