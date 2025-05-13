@@ -59,6 +59,7 @@ lazy_static! {
     pub static ref LOCKS_MAP: IndexMap<&'static str, Agent> = {
         let mut m = IndexMap::new();
         m.insert("bun.lockb", Agent::Bun);
+        m.insert("bun.lock", Agent::Bun);
         m.insert("pnpm-lock.yaml", Agent::Pnpm);
         m.insert("yarn.lock", Agent::Yarn);
         m.insert("package-lock.json", Agent::Npm);
