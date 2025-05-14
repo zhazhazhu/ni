@@ -1,6 +1,6 @@
 [package]
 name = "npack"
-version = "0.0.19"
+version = "0.0.20"
 edition = "2021"
 description = "Use the right package manager"
 authors = ["fangyuan.leslie@gmail.com"]
